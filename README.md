@@ -1,8 +1,5 @@
-# Persistent Topological Features in Large Language Models
-## Arxiv paper: https://arxiv.org/abs/2410.11042
-
-
-With this repo is it possibile to reproduce the data of the paper **Persistent topological features in large language models**
+# Persistent Topological Features in Large Language Models - ICML 2025
+## With this code you can reproduce the results of the paper and it is subdivided in four main parts inside the folder src
 -   **representation**: folder for the extraction of the hidden representations.
 -   **zigzag** :folder for the execution fo the ZigZag algorithm over the representations.
 -   **benchmark**: folder where it is possible to run the benchmarks with the different prunig methods.
@@ -11,7 +8,7 @@ With this repo is it possibile to reproduce the data of the paper **Persistent t
 -   **plots**: folder where it is possible to reproduce the plots of the paper.
 ## Environment setup
 
-To install the library for FastZigZag refer to their [paper](https://arxiv.org/abs/2204.11080) and their [github folder](https://github.com/TDA-Jyamiti/fzz).
+To install the library for FastZigZag refer to their [paper](https://arxiv.org/abs/2204.11080) and their [github folder](https://github.com/TDA-Jyamiti/fzz). Their code is not present in this repository due to their license which does not allow the redistribution of the software.
 
 To install the rest of the environment ```conda env create -f environment.yml```
 

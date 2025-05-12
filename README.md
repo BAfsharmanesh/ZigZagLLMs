@@ -1,5 +1,13 @@
 # Persistent Topological Features in Large Language Models - ICML 2025
-## With this code you can reproduce the results of the paper and it is subdivided in four main parts inside the folder src
+
+
+### Authors:
+**Yuri Gardinazzi, Karthik Viswanathan, Giada Panerai, Alberto Cazzaniga, Alessio Ansuini and Matteo Biagetti.**
+
+### Conference paper: **[link TBD](https://openreview.net/)**
+
+
+With the following code you can reproduce the results of the paper and it is subdivided in four main parts inside the folder src
 -   **representation**: folder for the extraction of the hidden representations.
 -   **zigzag** :folder for the execution fo the ZigZag algorithm over the representations.
 -   **benchmark**: folder where it is possible to run the benchmarks with the different prunig methods.
@@ -11,5 +19,7 @@
 To install the library for FastZigZag refer to their [paper](https://arxiv.org/abs/2204.11080) and their [github folder](https://github.com/TDA-Jyamiti/fzz). Their code is not present in this repository due to their license which does not allow the redistribution of the software.
 
 To install the rest of the environment ```conda env create -f environment.yml```
+
+## LICENSE
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.

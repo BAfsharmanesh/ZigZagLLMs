@@ -12,3 +12,4 @@ To install the library for FastZigZag refer to their [paper](https://arxiv.org/a
 
 To install the rest of the environment ```conda env create -f environment.yml```
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.

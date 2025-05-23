@@ -33,7 +33,6 @@ class ModelConfig:
     """Configuration for model loading and analysis."""
     model_name: str = "mistralai/Mistral-7B-v0.1"
     device: str = "auto"
-    max_length: int = 15
     cache_dir: Optional[str] = None
     
     def __post_init__(self):
@@ -76,35 +75,96 @@ class ModelLoader:
             cache_dir=self.config.cache_dir
         )
     
+    def _verify_token_positions(self, input_ids: torch.Tensor, prompts: List[str]):
+        """Verify that the last two tokens are month and 'is'."""
+        month_names = {
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        }
+        
+        verification_passed = True
+        
+        for i, prompt in enumerate(prompts):
+            # Get the last two tokens
+            last_token_id = input_ids[i, -1].item()
+            second_last_token_id = input_ids[i, -2].item()
+            
+            # Decode tokens
+            last_token = self.tokenizer.decode([last_token_id]).strip()
+            second_last_token = self.tokenizer.decode([second_last_token_id]).strip()
+            
+            # Check if last token is "is"
+            if last_token != "is":
+                print(f"Warning: Expected 'is' as last token in prompt {i}, got '{last_token}'")
+                print(f"Prompt: {prompt}")
+                verification_passed = False
+            
+            # Check if second-to-last token is a month name
+            if second_last_token not in month_names:
+                print(f"Warning: Expected month name as second-to-last token in prompt {i}, got '{second_last_token}'")
+                print(f"Prompt: {prompt}")
+                verification_passed = False
+        
+        if verification_passed:
+            print(f"✓ Token verification successful: All {len(prompts)} prompts have correct token positions (month + 'is')")
+    
+    def _verify_predictions(self, logits: torch.Tensor, prompts: List[str]):
+        """Verify that the model's top predictions are month names."""
+        month_names = {
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        }
+        
+        # Get top predictions for the last position (next token after "is")
+        last_position_logits = logits[:, -1, :]  # [batch_size, vocab_size]
+        top_token_ids = torch.argmax(last_position_logits, dim=-1)  # [batch_size]
+        
+        predictions_correct = True
+        
+        print("\nModel predictions:")
+        for i, prompt in enumerate(prompts):
+            top_token_id = top_token_ids[i].item()
+            predicted_token = self.tokenizer.decode([top_token_id]).strip()
+            
+            # Extract the starting month from the prompt
+            start_month = prompt.split("from ")[1].split(" is")[0]
+            
+            print(f"Prompt {i:2d}: '{start_month}' + 4 months → Predicted: '{predicted_token}'")
+            
+            if predicted_token not in month_names:
+                print(f"  ⚠️  Warning: Predicted token '{predicted_token}' is not a month name")
+                predictions_correct = False
+        
+        if predictions_correct:
+            print(f"\n✓ Prediction verification successful: All {len(prompts)} predictions are month names")
+    
     def generate_with_hidden_states(self, prompts: List[str]) -> Tuple[List[str], torch.Tensor, torch.Tensor]:
         """Generate text and extract hidden states."""
         with torch.no_grad():
             input_ids = self.tokenizer(prompts, return_tensors='pt').to(self.device)
-            outputs = self.model.generate(
+            outputs = self.model(
                 input_ids=input_ids['input_ids'],
-                pad_token_id=self.tokenizer.eos_token_id,
-                max_length=self.config.max_length,
-                return_dict_in_generate=True,
                 output_hidden_states=True
             )
             
-            generated_texts = [
-                self.tokenizer.decode(output_id, skip_special_tokens=True) 
-                for output_id in outputs.sequences
-            ]
+            # Verify token positions
+            self._verify_token_positions(input_ids['input_ids'], prompts)
+            
+            # Verify model predictions
+            self._verify_predictions(outputs.logits, prompts)
             
             # Extract hidden states for last and second-to-last tokens
             last_tokens = torch.stack([
-                outputs.hidden_states[0][idx][:, -1] 
+                outputs.hidden_states[idx][:, -1, :] 
                 for idx in range(33)
             ], dim=0)
             
             month_tokens = torch.stack([
-                outputs.hidden_states[0][idx][:, -2] 
+                outputs.hidden_states[idx][:, -2, :] 
                 for idx in range(33)
             ], dim=0)
             
-            return generated_texts, last_tokens, month_tokens
+            return last_tokens, month_tokens
 
 
 class PromptGenerator:
@@ -321,10 +381,10 @@ class ExperimentRunner:
         print(f"Generated {len(prompts)} prompts")
         
         # Generate responses and extract hidden states
-        generated_texts, last_tokens, month_tokens = self.model_loader.generate_with_hidden_states(prompts)
+        last_tokens, month_tokens = self.model_loader.generate_with_hidden_states(prompts)
         
         print(f"Extracted hidden states: {last_tokens.shape}")
-        return prompts, last_tokens, month_tokens, generated_texts
+        return prompts, last_tokens, month_tokens
     
     def visualize_results(self, prompts: List[str], hidden_states: torch.Tensor, 
                          title: str = "Analysis Results") -> plt.Figure:

@@ -2,7 +2,7 @@
 
 
 ### Authors:
-**Yuri Gardinazzi, Karthik Viswanathan, Giada Panerai, Alberto Cazzaniga, Alessio Ansuini and Matteo Biagetti.**
+**Yuri Gardinazzi, Karthik Viswanathan, Giada Panerai, Alessio Ansuini, Alberto Cazzaniga and Matteo Biagetti.**
 
 ### paper: **[link TBD](https://openreview.net/)**
 

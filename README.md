@@ -4,7 +4,7 @@
 ### Authors:
 **Yuri Gardinazzi, Karthik Viswanathan, Giada Panerai, Alessio Ansuini, Alberto Cazzaniga and Matteo Biagetti.**
 
-### paper: **[link TBD](https://openreview.net/)**
+### paper: **[link](https://openreview.net/forum?id=qAHnSkHvsm)**
 
 
 With the following code you can reproduce the results of the paper and it is subdivided in four main parts inside the folder src
